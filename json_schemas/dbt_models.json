@@ -1,0 +1,1490 @@
+{
+    "title": "dbt_properties_schema",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "version": {
+        "type": "number",
+        "const": 2
+      },
+      "analyses": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "data_type": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "tags": {
+                  "$ref": "#/$defs/string_or_array_of_strings"
+                }
+              },
+              "additionalProperties": false
+            },
+            "description": {
+              "type": "string"
+            },
+            "docs": {
+              "$ref": "#/$defs/docs_config"
+            }
+          }
+        }
+      },
+      "exposures": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["depends_on", "name", "owner", "type"],
+          "$comment": "NB: depends_on is not strictly required, but is _expected_ according to the documentation",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string",
+              "$comment": "Added in dbt Core v1.3"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["dashboard", "notebook", "analysis", "ml", "application"]
+            },
+            "depends_on": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": {
+              "type": "string"
+            },
+            "maturity": {
+              "type": "string",
+              "enum": ["high", "medium", "low"]
+            },
+            "meta": {
+              "type": "object"
+            },
+            "owner": {
+              "type": "object",
+              "required": ["email"],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "tags": {
+              "$ref": "#/$defs/string_or_array_of_strings"
+            },
+            "url": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "groups": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "owner"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "minProperties": 1,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "macros": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "description": {
+              "type": "string"
+            },
+            "docs": {
+              "$ref": "#/$defs/docs_config"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "metrics": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "label", "calculation_method", "expression"],
+          "if": {
+            "properties": {
+              "calculation_method": {
+                "const": "derived"
+              }
+            }
+          },
+          "then": {
+            "required": ["name", "label", "calculation_method", "expression"]
+          },
+          "else": {
+            "required": [
+              "name",
+              "model",
+              "label",
+              "calculation_method",
+              "expression"
+            ]
+          },
+          "properties": {
+            "config": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "treat_null_values_as_zero": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "group": {
+                  "type": "string"
+                }
+              }
+            },
+            "calculation_method": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "dimensions": {
+              "$ref": "#/$defs/array_of_strings"
+            },
+            "expression": {
+              "type": "string"
+            },
+            "filters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["field", "operator", "value"],
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "operator": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "label": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object"
+            },
+            "model": {
+              "type": "string",
+              "default": "ref('')"
+            },
+            "name": {
+              "type": "string"
+            },
+            "time_grains": {
+              "$ref": "#/$defs/array_of_strings"
+            },
+            "timestamp": {
+              "type": "string"
+            },
+            "window": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "period": {
+                  "type": "string",
+                  "enum": ["day", "week", "month", "year"]
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "models": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name","meta","description","columns"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "access": {
+              "type": "string",
+              "enum": ["private", "protected", "public"]
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/column_properties"
+              }
+            },
+            "config": {
+              "$ref": "#/$defs/model_configs"
+            },
+            "constraints": {
+              "$ref": "#/$defs/constraints"
+            },
+            "description": {
+              "type": "string",
+              "description": "A technical description of the model. ."
+            },
+            "docs": {
+              "$ref": "#/$defs/docs_config"
+            },
+            "group": {
+              "type": "string"
+            },
+            "latest_version": {
+              "type": "number"
+            },
+            "meta": {
+              "type": "object",
+              "required": ["type", "entity","row_record_definition"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum":["events","entity","snapshot","staging","view"],
+                  "description": "The type of the model. Used to determine its purpose"
+                },
+                "entity":{ 
+                  "type": "string",
+                  "description": "The entity that the model represents.",
+                  "enum":["WEB","CHANNEL","CUSTOMER","CUSTOMER_PURCHASE","PARTY","PRODUCT","WEB_SESSION","BUSINESS_UNIT","LOCATION"]
+                },
+                "data_source":{
+                  "type":"string",
+                  "description":"The source of the data for the model. Name in snake case capital letters",
+                  "examples":["GOOGLE_ADS","GOOGLE_ANALYTICS"]
+              },
+                "row_record_definition":{
+                  "type":"string",
+                  "description":"definition of the row record",
+                  "examples":["unique session","unique product defined by product_id"]
+              }
+              }
+            },
+            "tests": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/tests"
+              }
+            },
+            "versions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["v"],
+                "properties": {
+                  "v": {
+                    "type": "number"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/model_configs"
+                  },
+                  "columns": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/include_exclude"
+                        },
+                        {
+                          "$ref": "#/$defs/column_properties"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "seeds": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/column_properties"
+              }
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "column_types": {
+                  "type": "object"
+                },
+                "copy_grants": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "database": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "grants": {
+                  "$ref": "#/$defs/grants"
+                },
+                "quote_columns": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": {
+              "type": "string"
+            },
+            "docs": {
+              "$ref": "#/$defs/docs_config"
+            },
+            "tests": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/tests"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "snapshots": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/column_properties"
+              }
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "alias": {
+                  "type": "string"
+                },
+                "check_cols": {
+                  "$ref": "#/$defs/string_or_array_of_strings"
+                },
+                "enabled": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "grants": {
+                  "$ref": "#/$defs/grants"
+                },
+                "persist_docs": {
+                  "$ref": "#/$defs/persist_docs_config"
+                },
+                "post-hook": {
+                  "$ref": "#/$defs/array_of_strings"
+                },
+                "pre-hook": {
+                  "$ref": "#/$defs/array_of_strings"
+                },
+                "quote_columns": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "strategy": {
+                  "type": "string"
+                },
+                "tags": {
+                  "$ref": "#/$defs/string_or_array_of_strings"
+                },
+                "target_database": {
+                  "type": "string"
+                },
+                "target_schema": {
+                  "type": "string"
+                },
+                "unique_key": {
+                  "$ref": "#/$defs/string_or_array_of_strings"
+                },
+                "updated_at": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": {
+              "type": "string"
+            },
+            "docs": {
+              "$ref": "#/$defs/docs_config"
+            },
+            "meta": {
+              "type": "object"
+            },
+            "tests": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/tests"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "sources": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "How you will identify the schema in {{ source() }} calls. Unless `schema` is also set, this will be the name of the schema in the database."
+            },
+            "config": {
+              "type": "object"
+            },
+            "database": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "freshness": {
+              "$ref": "#/$defs/freshness_definition"
+            },
+            "loaded_at_field": {
+              "type": "string"
+            },
+            "loader": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object"
+            },
+            "overrides": {
+              "title": "Package to Override",
+              "type": "string",
+              "description": "The name of another package installed in your project. If that package has a source with the same name as this one, its properties will be applied on top of the base properties of the overridden source. https://docs.getdbt.com/reference/resource-properties/overrides"
+            },
+            "quoting": {
+              "type": "object",
+              "properties": {
+                "database": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "identifier": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                },
+                "schema": {
+                  "$ref": "#/$defs/boolean_or_jinja_string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "schema": {
+              "type": "string",
+              "description": "The schema name as stored in the database. Only needed if you want to use a different `name` than what exists in the database (otherwise `name` is used by default)"
+            },
+            "tables": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "description": "How you will identify the table in {{ source() }} calls. Unless `identifier` is also set, this will be the name of the table in the database."
+                  },
+                  "columns": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/column_properties"
+                    }
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "external": {
+                    "type": "object"
+                  },
+                  "freshness": {
+                    "$ref": "#/$defs/freshness_definition"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "type": "string",
+                    "description": "The table name as stored in the database. Only needed if you want to give the source a different name than what exists in the database (otherwise `name` is used by default)"
+                  },
+                  "loaded_at_field": {
+                    "type": "string",
+                    "description": "Which column to check during data freshness tests. Only needed if the table has a different loaded_at_field to the one defined on the source overall."
+                  },
+                  "loader": {
+                    "type": "string"
+                  },
+                  "meta": {
+                    "type": "object"
+                  },
+                  "quoting": {
+                    "type": "object",
+                    "properties": {
+                      "database": {
+                        "$ref": "#/$defs/boolean_or_jinja_string"
+                      },
+                      "identifier": {
+                        "$ref": "#/$defs/boolean_or_jinja_string"
+                      },
+                      "schema": {
+                        "$ref": "#/$defs/boolean_or_jinja_string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "tags": {
+                    "$ref": "#/$defs/string_or_array_of_strings"
+                  },
+                  "tests": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/tests"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "tags": {
+              "$ref": "#/$defs/string_or_array_of_strings"
+            },
+            "tests": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/tests"
+              }
+            }
+          }
+        }
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "array_of_strings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "boolean_or_jinja_string": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/jinja_string"
+          },
+          {
+            "type": "boolean"
+          }
+        ],
+        "additionalProperties": false
+      },
+      "column_properties": {
+        "type": "object",
+        "required": ["name","meta","data_type","description"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "constraints": {
+            "$ref": "#/$defs/constraints"
+          },
+          "data_type": {
+            "type": "string",
+            "description": "The data type of the column. This should be a valid data type for the target database.",
+            "enum":["STRING","BOOLEAN","INT64","FLOAT64","NUMERIC","BIGNUMERIC","DATE","DATETIME","TIMESTAMP","TIME","GEOGRAPHY","ARRAY","STRUCT","BYTES","BOOLEAN"]
+  
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the column. Primarily used for technical documentation.",
+            "examples": ["The name of the user","The age of the user"]
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "col_type": {
+                "type": "string",
+                  "enum": ["dimension", "measure","time","foreign_key","primary_key","parameters"],
+                  "description": "The type of the column. Used to determine its purpose and additional"
+              },
+              "info_type": {
+                "type": "string",
+                "enum": ["time","name","address","email","phone","rate","category","flag","identifier","parameters","url","order_number","count"],
+                "description": "The type of information stored in the column. Used to determine other meta information"
+              },
+              "main_time_dimension":
+              {
+                "type": "boolean",
+                "description": "The main time dimension of the model. Used to determine the time grain of the model.",
+                "default": false
+              },
+              "entity":
+              {
+                  "type": "string",
+                  "description": "The entity that the model represents.",
+                  "enum":["WEB","CHANNEL","CUSTOMER","CUSTOMER_PURCHASE","PARTY","PRODUCT","WEB_SESSION","BUSINESS_UNIT","LOCATION"]
+              },
+              "format": {
+                "type": "string",
+                  "description": "The format of the data stored in the column. E.g. for date it could be 'YYYY-MM-DD' or regexp for email, phone, etc.",
+                  "examples": ["YYYY-MM-DD",".+@.+\\..+","(\\d{3}) \\d{3}-\\d{4}"]
+              },
+              "definition": {
+                "type": "string",
+                "description": "If needed, more detailed definition of the column for example how it is calculated, what is the source, etc.",
+                "examples": ["CONCAT(first_name, ' ', last_name)","CASE WHEN age < 18 THEN 'minor' ELSE 'adult' END"]
+              },
+              "sensitivity": {
+                "type": "string",
+                "description": "level of sensitivity of the data",
+                "enum": ["public","internal","confidential","pii"],
+                "default": "public"
+              },
+              "special_cases": {
+                "type": "string",
+                "description" : "if there are any special cases for the column (e.g. if it is calculated only for some specific cases, etc.)",
+                "examples": ["calculated only for users with age > 18","within weekends data are missing"]
+              }
+            },
+            "required":["col_type","info_type"]
+          },
+          "policy_tags": {
+            "title": "Policy tags",
+            "type": "array",
+            "description": "Configurations, specific to BigQuery adapter, used to set policy tags on specific columns, enabling column-level security. Only relevant when `persist_docs.columns` is true.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "quote": {
+            "$ref": "#/$defs/boolean_or_jinja_string"
+          },
+          "tests": {
+            "type": "array",
+            "description": 
+            "- if meta.col_type == 'primary_key' then [not_null, unique] - if meta.col_type == 'foreign_key' then '- relationships: to: ref($meta.entity) field: id - if meta.col_type == 'time' and meta.main_time_dimension == true then '- dbt_expectations.expect_row_values_to_have_recent_data: datepart: day interval: 1 - if meta.format is not null then [dbt_utils.regexp_match:$meta.format] - 'dbt_expectations.expect_column_values_to_be_of_type: $data_type - if name like 'is_%' or name like 'has_%' then [dbt_expectations.expect_column_values_to_be_in_set: value_set: ['true', 'false']]",
+            "items": {
+              "$ref": "#/$defs/tests"
+            }
+          },
+          "tags": {
+            "$ref": "#/$defs/string_or_array_of_strings"
+          }
+        },
+        "additionalProperties": false,
+        "uniqueItems": true
+      },
+      "constraints": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "columns": {
+              "$ref": "#/$defs/string_or_array_of_strings"
+            },
+            "expression": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "warn_unenforced": {
+              "$ref": "#/$defs/boolean_or_jinja_string"
+            },
+            "warn_unsupported": {
+              "$ref": "#/$defs/boolean_or_jinja_string"
+            }
+          }
+        }
+      },
+      "docs_config": {
+        "title": "Docs config",
+        "type": "object",
+        "description": "Configurations for the appearance of nodes in the dbt documentation.",
+        "properties": {
+          "node_color": {
+            "type": "string",
+            "description": "The color of the node on the DAG in the documentation. It must be an Hex code or a valid CSS color name.",
+            "pattern": "^(#[a-fA-F0-9]{3}|#[a-fA-F0-9]{6}|[^#][a-zA-Z]*)$"
+          },
+          "show": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "freshness_definition": {
+        "default": {
+          "warn_after": {
+            "count": 1,
+            "period": "day"
+          },
+          "error_after": {
+            "count": 2,
+            "period": "day"
+          }
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "error_after": {
+                "$ref": "#/$defs/freshness_rules"
+              },
+              "filter": {
+                "type": "string"
+              },
+              "warn_after": {
+                "$ref": "#/$defs/freshness_rules"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "const": null
+          }
+        ]
+      },
+      "freshness_rules": {
+        "type": "object",
+        "required": ["count", "period"],
+        "properties": {
+          "count": {
+            "$ref": "#/$defs/number_or_jinja_string"
+          },
+          "period": {
+            "type": "string",
+            "enum": ["minute", "hour", "day"]
+          }
+        },
+        "additionalProperties": false
+      },
+      "grants": {
+        "type": "object",
+        "description": "grant config. each key is a database permission and the value is the grantee of that permission",
+        "patternProperties": {
+          ".*": {
+            "$ref": "#/$defs/string_or_array_of_strings"
+          }
+        },
+        "additionalProperties": false
+      },
+      "include_exclude": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "$ref": "#/$defs/string_or_array_of_strings"
+          },
+          "exclude": {
+            "$ref": "#/$defs/string_or_array_of_strings"
+          }
+        }
+      },
+      "jinja_string": {
+        "type": "string",
+        "pattern": "\\{\\{.*\\}\\}"
+      },
+      "model_configs": {
+        "type": "object",
+        "properties": {
+          "contract": {
+            "type": "object",
+            "properties": {
+              "enforced": {
+                "$ref": "#/$defs/boolean_or_jinja_string"
+              }
+            }
+          },
+          "file_format": {
+            "type": "string"
+          },
+          "grant_access_to": {
+            "title": "Authorized views",
+            "type": "array",
+            "description": "Configuration, specific to BigQuery adapter, used to setup authorized views.",
+            "items": {
+              "type": "object",
+              "required": ["database", "project"],
+              "properties": {
+                "database": {
+                  "type": "string"
+                },
+                "project": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "grants": {
+            "$ref": "#/$defs/grants"
+          },
+          "hours_to_expiration": {
+            "type": "number",
+            "description": "Configuration specific to BigQuery adapter used to set an expiration delay (in hours) to a table."
+          },
+          "kms_key_name": {
+            "type": "string",
+            "description": "Configuration of the KMS key name, specific to BigQuery adapter.",
+            "pattern": "projects/[a-zA-Z0-9_-]*/locations/[a-zA-Z0-9_-]*/keyRings/.*/cryptoKeys/.*"
+          },
+          "labels": {
+            "title": "Label configs",
+            "type": "object",
+            "description": "Configuration specific to BigQuery adapter used to add labels and tags to tables/views created by dbt.",
+            "patternProperties": {
+              "^[a-z][a-z0-9_-]{0,62}$": {
+                "type": "string",
+                "pattern": "^[a-z0-9_-]{0,63}$"
+              }
+            },
+            "additionalProperties": false
+          },
+          "location": {
+            "type": "string"
+          },
+          "materialized": {
+            "type": "string"
+          },
+          "sql_header": {
+            "type": "string"
+          }
+        }
+      },
+      "number_or_jinja_string": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/jinja_string"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "additionalProperties": false
+      },
+      "persist_docs_config": {
+        "title": "Persist docs config",
+        "type": "object",
+        "description": "Configurations for the persistence of the dbt documentation.",
+        "properties": {
+          "columns": {
+            "$ref": "#/$defs/boolean_or_jinja_string",
+            "default": true
+          },
+          "relation": {
+            "$ref": "#/$defs/boolean_or_jinja_string",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "string_or_array_of_strings": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/array_of_strings"
+          }
+        ]
+      },
+      "test_configs": {
+        "title": "Test configs",
+        "type": "object",
+        "required": ["tags"],
+        "description": "Configurations set here will override configs set in dbt_project.yml.",
+        "properties": {
+          "alias": {
+            "type": "string",
+            "description": "Only relevant when `store_failures` is true"
+          },
+          "database": {
+            "type": "string",
+            "description": "Only relevant when `store_failures` is true"
+          },
+          "enabled": {
+            "$ref": "#/$defs/boolean_or_jinja_string"
+          },
+          "error_if": {
+            "type": "string"
+          },
+          "fail_calc": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "schema": {
+            "type": "string",
+            "description": "Only relevant when `store_failures` is true"
+          },
+          "severity": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/jinja_string"
+              },
+              {
+                "type": "string",
+                "enum": ["warn", "error"]
+              }
+            ]
+          },
+          "store_failures": {
+            "$ref": "#/$defs/boolean_or_jinja_string"
+          },
+          "tags": {
+            "type": "string",
+            "enum": ["dev", "critical","cleanliness"],
+            "description": "label type of test where: \n dev = tests that should be run only before commiting changes to prevent breaking the build (default), \n critical = expectations that will be run daily, important to business, \n cleanliness = tests run ocassionaly to monitor data quality",
+            "default":"dev"
+          },
+          "warn_if": {
+            "type": "string"
+          }
+        }
+      },
+      "tests": {
+        "anyOf": [
+          {
+            "title": "Table Aggregation Equal to other table",
+            "type": "object",
+            "properties": {
+              "dbt_expectations.expect_table_aggregation_to_equal_other_table": {
+                "type": "object",
+                "required": ["expression", "compare_model"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "expression": {
+                    "title": "Expression",
+                    "type": "string",
+                    "default": "AGG(column)",
+                    "examples": ["sum(col_numeric_a)"],
+                    "description": "Expression (either on both models or on original model)"
+                  },
+                  "compare_model": {
+                    "title": "Compare model",
+                    "type": "string",
+                    "default": "ref('')",
+                    "examples": ["ref('other_model')"],
+                    "description": "Model to compare to"
+                  },
+                  "group_by": {
+                    "title": "Group by on original table",
+                    "type": "string",
+                    "default": "[]",
+                    "examples": ["idx"],
+                    "description": "List of columns to group by"
+                  },
+                  "compare_expressions": {
+                    "title": "Aggregation expression on comparison table",
+                    "type": "string",
+                    "default": "AGG(column)",
+                    "examples": ["sum(col_numeric_a)"],
+                    "description": "Expression "
+                  },
+                  "compare_group_by": {
+                    "title": "Group by on comparison table",
+                    "type": "string",
+                    "default": "[]",
+                    "examples": ["idx"],
+                    "description": "List of columns to group by on comparison table"
+                  },
+                  "row_condition": {
+                    "title": "Filter",
+                    "type": "string",
+                    "default": "some_flag=true",
+                    "examples": ["some_flag=true"],
+                    "description": "Filter to apply to the original table or both tables (if the expression is on both tables)"
+                  },
+                  "compare_row_condition": {
+                    "title": "Group by",
+                    "type": "string",
+                    "default": "some_flag=true",
+                    "examples": ["some_flag=true"],
+                    "description": "List of columns to group by"
+                  }
+                }
+              },
+              "dbt_expectations.expect_column_values_to_be_within_n_moving_stdevs": {
+                "type": "object",
+                "description":"A simple anomaly test based on the assumption that differences between periods in a given time series follow a log-normal distribution. Thus, we would expect the logged differences (vs N periods ago) in metric values to be within Z sigma away from a moving average. By applying a list of columns in the group_by parameter, you can also test for deviations within a group. Find more here https://github.com/calogica/dbt-expectations/blob/0.10.3/macros/schema_tests/distributional/expect_column_values_to_be_within_n_moving_stdevs.sql",
+                "required": ["date_column_name"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "date_column_name": {
+                    "title": "Date column name",
+                    "type": "string",
+                    "default": "CALENDAR__date",
+                    "examples": ["sum(col_numeric_a)"],
+                    "description": "main date column used for the test"
+                  },
+                  "period": {
+                    "title": "period type",
+                    "type": "string",
+                    "default": "day",
+                    "enum": ["day", "week", "month", "year"],
+                    "description": "level of granularity for the test"
+                  },
+                  "lookback_periods": {
+                    "title": "Lookback periods",
+                    "type": "number",
+                    "default": 1,
+                    "description": "applicable when take_diffs is true, number of periods to look back when calculating the difference"
+                  },
+                  "trend_periods": {
+                    "title": "Trend Periods",
+                    "type": "number",
+                    "default": 7,
+                    "description": "count of periods from which to calculate the trend numbers (mean and std)"
+                  },
+                  "test_periods": {
+                    "title": "Test Periods",
+                    "type": "number",
+                    "default": 14,
+                    "description": "Count of {period} back that will be tested from today"
+                  },
+                  "sigma_threshold": {
+                    "title": "Sigma threshold",
+                    "type": "number",
+                    "default": 3,
+                    "description": "Threshold for calculating acceptable interval of values. If sigma_threshold_lower and sigma_threshold_upper are not set, this is the only sigma threshold used. "
+                  },
+                  "sigma_threshold_upper": {
+                    "title": "Upper sigma threshold",
+                    "type": "number",
+                    "default": 3,
+                    "description": "Upper sigma threshold for calculating acceptable interval of values"
+                  },
+                  "sigma_threshold_lower": {
+                    "title": "Lower sigma threshold",
+                    "type": "number",
+                    "default": 3,
+                    "description": "Lower sigma threshold for calculating acceptable interval of values"
+                  },
+                  "take_diffs": {
+                    "title": "Compare diffs",
+                    "type": "boolean",
+                    "default": true,
+                    "description": "if true, the test will compare the difference between the current period and the period defined by lookback_periods, else it will compare absolute values"
+                  },
+                  "group_by": {
+                    "title": "Group by",
+                    "type": "string",
+                    "examples": ["group_id"],
+                    "description": "Group by column for the test"
+                  },
+                  "take_logs": {
+                    "title": "Log values",
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If true, the test will take the log of the values before calculating the differences"
+                  }
+                }
+              }
+  
+            }
+          },
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "title": "Relationships Test",
+            "type": "object",
+            "properties": {
+              "relationships": {
+                "type": "object",
+                "required": ["to", "field","config"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "field": {
+                    "title": "Relationships: Field",
+                    "type": "string",
+                    "default": "<FOREIGN_KEY_COLUMN>",
+                    "description": "The foreign key column"
+                  },
+                  "to": {
+                    "type": "string",
+                    "default": "ref('')",
+                    "examples": [
+                      "ref('parent_model')",
+                      "source('parent_schema', 'parent_table')"
+                    ]
+                  },
+                  "where": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Accepted Values Test",
+            "type": "object",
+            "properties": {
+              "accepted_values": {
+                "type": "object",
+                "required": ["values","config"],
+  
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "quote": {
+                    "type": "boolean"
+                  },
+                  "values": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "where": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Not Null Test",
+            "description": "Check if the column is not null, see more info in https://docs.getdbt.com/reference/resource-properties/data-tests#not_null",
+            "type": "object",
+            "properties": {
+              "not_null": {
+                "type": "object",
+                "required": ["config"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "where": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Unique Test",
+            "type": "object",
+            "properties": {
+              "unique": {
+                "type": "object",
+                "required": ["config"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "where": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "data type validation",
+            "type": "object",
+            "properties": {
+              "dbt_expectations.expect_column_values_to_be_of_type": {
+                "type": "object",
+                "required": ["config","column_type"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "column_type": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "expected range of values",
+            "description": "validate accepted range",
+            "type": "object",
+            "properties": {
+              "dbt_utils.accepted_range": {
+                "type": "object",
+                "required": ["config"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "min_value": {
+                    "type": "string",
+                    "default": "0"
+                  },
+                  "max_value": {
+                    "type": "string",
+                    "default":"1000"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "general expression",
+            "description": "Validate if the expression is true",
+            "type": "object",
+            "properties": {
+              "dbt_utils.expression_is_true": {
+                "type": "object",
+                "required": ["config","expression"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "expression": {
+                    "type": "string",
+                    "description": "The expression to be validated, for example if date is in expected format",
+                    "examples": ["PARSE_TIMESTAMP(STRING(timestamp)),'%Y-%m-%d %H:%M:%S %Z') is not null"]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "check if the value is expected range between two values",
+            "description": "validate accepted range",
+            "type": "object",
+            "properties": {
+              "dbt_expectations.expect_column_values_to_be_between": {
+                "type": "object",
+                "required": ["config"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "min_value": {
+                    "type": "string"
+                  },
+                  "max_value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Check if the values are in sequence",
+            "description": "Check if the values are in sequence",
+            "type": "object",
+            "properties": {
+              "dbt_utils.sequential_values": {
+                "type": "object",
+                "required": ["config","interval"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "interval": {
+                    "type": "number"
+                  },
+                  "group_by_columns": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "regexp match",
+            "description": "Column values always match corresponding regular expression",
+            "type": "object",
+            "properties": {
+              "dbt_expectations.expect_column_values_to_match_regex": {
+                "type": "object",
+                "required": ["config","regex"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "regex": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "regexp match",
+            "description": "Column values always match corresponding regular expression",
+            "type": "object",
+            "properties": {
+              "dbt_expectations.expect_row_values_to_have_recent_data": {
+                "type": "object",
+                "required": ["config","datepart","interval"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "$ref": "#/$defs/test_configs"
+                  },
+                  "datepart": {
+                    "type": "string",
+                    "enum": ["day", "week", "month", "year"],
+                    "default": "day"
+                    
+                  },
+                  "interval": {
+                    "type": "number",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+  
